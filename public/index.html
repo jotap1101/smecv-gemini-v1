@@ -1,89 +1,1015 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sala Mineira - Gerenciador de Currículos</title>
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/11.9.1/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/11.9.1/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/11.9.1/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/11.9.1/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/11.9.1/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/11.9.1/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/11.9.1/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/11.9.1/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/11.9.1/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/11.9.1/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
+    <!-- jsPDF and html2canvas for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      /* PDF Preview Container */
+      #pdf-preview-container {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        background: white;
+        color: #000;
+      }
+
+      /* Custom Skills Component Styles */
+      .skills-container .selected-skill {
+        background-color: #e0f2fe;
+        color: #0c4a6e;
+        padding: 4px 8px;
+        margin: 2px;
+        border-radius: 9999px;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+      }
+      .skills-container .remove-skill-btn {
+        margin-left: 8px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .skills-dropdown {
+        max-height: 200px;
+        overflow-y: auto;
       }
     </style>
   </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
+  <body class="bg-slate-100 text-slate-800">
+    <!-- App Container -->
+    <div id="app-container">
+      <!-- Login Section -->
+      <div
+        id="login-section"
+        class="flex items-center justify-center min-h-screen"
+      >
+        <div
+          class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg"
+        >
+          <div class="text-center">
+            <img
+              src="https://placehold.co/100x100/e2e8f0/475569?text=Logo"
+              alt="Logo Prefeitura"
+              class="w-24 h-24 mx-auto mb-4 rounded-full"
+            />
+            <h1 class="text-3xl font-bold text-slate-900">Sala Mineira</h1>
+            <p class="text-slate-600">Gerenciador de Currículos</p>
+          </div>
+          <form id="login-form" class="space-y-4">
+            <div>
+              <label for="email" class="text-sm font-medium text-slate-700"
+                >Email</label
+              >
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                class="w-full px-4 py-2 mt-1 text-slate-700 bg-slate-100 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label for="password" class="text-sm font-medium text-slate-700"
+                >Senha</label
+              >
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                class="w-full px-4 py-2 mt-1 text-slate-700 bg-slate-100 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300"
+            >
+              Entrar
+            </button>
+          </form>
+          <p id="login-error" class="text-sm text-center text-red-500"></p>
+        </div>
+      </div>
+
+      <!-- Main App Section -->
+      <div id="app-section" class="hidden">
+        <header class="bg-white shadow-md sticky top-0 z-40">
+          <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+              <div class="flex items-center space-x-4">
+                <h1 class="text-xl font-bold text-slate-800">
+                  Sala Mineira CRM
+                </h1>
+              </div>
+              <div class="flex items-center space-x-4">
+                <span
+                  id="user-email"
+                  class="text-sm text-slate-600 hidden sm:block"
+                ></span>
+                <button
+                  id="logout-button"
+                  class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition"
+                >
+                  Sair <i class="fas fa-sign-out-alt ml-1"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+          <div class="p-6 mb-8 bg-white rounded-xl shadow-lg">
+            <form
+              id="filter-form"
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end"
+            >
+              <div class="lg:col-span-2">
+                <label
+                  for="filter-text"
+                  class="text-sm font-medium text-slate-700"
+                  >Nome ou Habilidade</label
+                >
+                <input
+                  type="text"
+                  id="filter-text"
+                  placeholder="Ex: João da Silva, Vendas..."
+                  class="w-full px-4 py-2 mt-1 text-slate-700 bg-slate-100 border rounded-lg"
+                />
+              </div>
+              <div>
+                <label
+                  for="filter-cnh"
+                  class="text-sm font-medium text-slate-700"
+                  >CNH</label
+                >
+                <select
+                  id="filter-cnh"
+                  class="w-full px-4 py-2 mt-1 text-slate-700 bg-slate-100 border rounded-lg"
+                >
+                  <option value="todos">Todas</option>
+                  <option value="Nenhuma">Nenhuma</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="A+B">A+B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                  <option value="E">E</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  for="filter-pcd"
+                  class="text-sm font-medium text-slate-700"
+                  >PCD</label
+                >
+                <select
+                  id="filter-pcd"
+                  class="w-full px-4 py-2 mt-1 text-slate-700 bg-slate-100 border rounded-lg"
+                >
+                  <option value="todos">Todos</option>
+                  <option value="Sim">Sim</option>
+                  <option value="Não">Não</option>
+                </select>
+              </div>
+              <div class="lg:col-start-4">
+                <button
+                  type="button"
+                  id="clear-filters-btn"
+                  class="w-full py-2.5 font-semibold text-slate-700 bg-slate-200 rounded-lg hover:bg-slate-300 transition"
+                >
+                  Limpar Filtros
+                </button>
+              </div>
+            </form>
+            <div class="text-right mt-6">
+              <button
+                id="add-resume-button"
+                class="w-auto py-2.5 px-6 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition flex items-center space-x-2"
+              >
+                <i class="fas fa-plus-circle"></i
+                ><span>Adicionar Currículo</span>
+              </button>
+            </div>
+          </div>
+
+          <div
+            id="resume-list"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          ></div>
+          <div id="loading-indicator" class="text-center py-10">
+            <i class="fas fa-spinner fa-spin fa-3x text-blue-500"></i>
+            <p class="mt-2 text-slate-600">Carregando...</p>
+          </div>
+          <div id="no-results" class="text-center py-10 hidden">
+            <i class="fas fa-file-alt fa-3x text-slate-400"></i>
+            <p class="mt-2 text-slate-600">Nenhum currículo encontrado.</p>
+          </div>
+        </main>
+      </div>
     </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+    <!-- Modals and other floating elements -->
+    <div id="pdf-preview-container"></div>
+    <div
+      id="resume-modal"
+      class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-60"
+    >
+      <div
+        class="bg-white rounded-lg shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-h-[90vh] overflow-y-auto"
+      >
+        <form id="resume-form" class="p-6">
+          <input type="hidden" id="resume-id" />
+          <h2 id="modal-title" class="text-2xl font-bold mb-4">
+            Novo Currículo
+          </h2>
+          <div id="form-content-container"></div>
+          <div class="flex justify-end pt-6 mt-4 border-t space-x-3">
+            <button
+              type="button"
+              id="cancel-button"
+              class="px-4 py-2 bg-slate-200 rounded-lg hover:bg-slate-300"
+            >
+              Cancelar</button
+            ><button
+              type="submit"
+              id="save-button"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div
+      id="share-modal"
+      class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50"
+    >
+      <div class="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-lg">
+        <h3 class="text-xl font-bold">Compartilhar Currículo</h3>
+        <div class="mt-4">
+          <label class="font-semibold">Link para Empresa</label>
+          <p class="text-sm text-slate-500 mb-2">Somente leitura.</p>
+          <div class="flex items-center bg-slate-100 border rounded-lg p-2">
+            <input
+              type="text"
+              id="share-link-company"
+              readonly
+              class="flex-grow bg-transparent outline-none text-sm"
+            /><button
+              data-target="share-link-company"
+              class="copy-link-button ml-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+            >
+              Copiar
+            </button>
+          </div>
+        </div>
+        <div class="mt-6">
+          <label class="font-semibold">Link para Candidato</label>
+          <p class="text-sm text-slate-500 mb-2">Pode editar os dados.</p>
+          <div class="flex items-center bg-slate-100 border rounded-lg p-2">
+            <input
+              type="text"
+              id="share-link-candidate"
+              readonly
+              class="flex-grow bg-transparent outline-none text-sm"
+            /><button
+              data-target="share-link-candidate"
+              class="copy-link-button ml-2 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+            >
+              Copiar
+            </button>
+          </div>
+        </div>
+        <p
+          id="copy-feedback"
+          class="text-green-600 text-sm mt-3 h-4 text-center"
+        ></p>
+        <div class="text-right mt-4">
+          <button
+            id="close-share-modal"
+            class="px-4 py-2 bg-slate-200 rounded-lg hover:bg-slate-300"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="confirm-modal"
+      class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50"
+    >
+      <div class="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-md">
+        <h3 id="confirm-title" class="text-xl font-bold">Confirmar</h3>
+        <p id="confirm-message" class="text-slate-600 mt-2">Tem certeza?</p>
+        <div class="flex justify-end mt-6 space-x-3">
+          <button
+            id="confirm-cancel-btn"
+            class="px-4 py-2 bg-slate-200 rounded-lg hover:bg-slate-300"
+          >
+            Cancelar</button
+          ><button
+            id="confirm-ok-btn"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
 
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        onSnapshot,
+        doc,
+        getDoc,
+        updateDoc,
+        deleteDoc,
+        serverTimestamp,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // --- Firebase Configuration ---
+      const firebaseConfig = {
+        apiKey: "AIzaSyCWV4nL3mApcI63wn7f3eXQVdgGRop1tqw",
+        authDomain: "resume-app-v1.firebaseapp.com",
+        projectId: "resume-app-v1",
+        storageBucket: "resume-app-v1.appspot.com",
+        messagingSenderId: "314397205311",
+        appId: "1:314397205311:web:29fd7c17a120b369aea98a",
+        measurementId: "G-D40BMC2QYZ",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // --- Global State ---
+      let allResumes = [];
+      let allSkills = [];
+      let selectedSkills = [];
+      let currentUserId = null; // Defined globally
+      let confirmCallback = null;
+
+      // --- DOM Elements ---
+      const appContainer = document.getElementById("app-container");
+      const loginSection = document.getElementById("login-section");
+      const appSection = document.getElementById("app-section");
+      const loginForm = document.getElementById("login-form");
+      const loginError = document.getElementById("login-error");
+      const userEmailSpan = document.getElementById("user-email");
+      const logoutButton = document.getElementById("logout-button");
+      const resumeList = document.getElementById("resume-list");
+      const loadingIndicator = document.getElementById("loading-indicator");
+      const noResults = document.getElementById("no-results");
+      const filterForm = document.getElementById("filter-form");
+      const filterText = document.getElementById("filter-text");
+      const filterCnh = document.getElementById("filter-cnh");
+      const filterPcd = document.getElementById("filter-pcd");
+      const clearFiltersBtn = document.getElementById("clear-filters-btn");
+      const resumeModal = document.getElementById("resume-modal");
+      const resumeForm = document.getElementById("resume-form");
+      const modalTitle = document.getElementById("modal-title");
+      const formContainer = document.getElementById("form-content-container");
+      const addResumeButton = document.getElementById("add-resume-button");
+      const cancelButton = document.getElementById("cancel-button");
+      const shareModal = document.getElementById("share-modal");
+      const shareLinkCompanyInput =
+        document.getElementById("share-link-company");
+      const shareLinkCandidateInput = document.getElementById(
+        "share-link-candidate"
+      );
+      const closeShareModal = document.getElementById("close-share-modal");
+      const copyFeedback = document.getElementById("copy-feedback");
+      const confirmModal = document.getElementById("confirm-modal");
+
+      // --- App Initializer ---
+      function startApp() {
+        const params = new URLSearchParams(window.location.search);
+        const viewId = params.get("view");
+        const editId = params.get("edit");
+
+        if (viewId) renderPublicView(viewId, false);
+        else if (editId) renderPublicView(editId, true);
+        else setupMainApp();
+      }
+
+      // --- Main App Setup ---
+      function setupMainApp() {
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            currentUserId = user.uid; // Set user ID
+            loginSection.classList.add("hidden");
+            appSection.classList.remove("hidden");
+            userEmailSpan.textContent = user.email;
+
+            try {
+              const skillsQuery = await getDocs(collection(db, "habilidades"));
+              allSkills = skillsQuery.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              }));
+              fetchResumes();
+            } catch (error) {
+              console.error("Firebase Permission Error:", error);
+              alert(
+                "Erro de permissão ao carregar dados. Verifique as regras de segurança do seu Firestore."
+              );
+              loadingIndicator.innerHTML = `<p class="text-red-500">Falha ao carregar dados. Permissões insuficientes.</p>`;
+            }
+          } else {
+            currentUserId = null; // Clear user ID on logout
+            loginSection.classList.remove("hidden");
+            appSection.classList.add("hidden");
+            allResumes = [];
+            renderResumeCards([]);
+          }
+        });
+
+        loginForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          loginError.textContent = "";
+          try {
+            await signInWithEmailAndPassword(
+              auth,
+              loginForm.email.value,
+              loginForm.password.value
+            );
+          } catch (error) {
+            loginError.textContent = "Email ou senha inválidos.";
+          }
+        });
+
+        logoutButton.addEventListener("click", () => signOut(auth));
+      }
+
+      // --- Public View (Read-only or Editable) ---
+      async function renderPublicView(id, isEditable) {
+        appContainer.innerHTML = `<div id="public-view-container" class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8"><div id="loading-public" class="text-center py-20"><i class="fas fa-spinner fa-spin fa-3x text-blue-500"></i></div></div>`;
         try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
+          const resumeDocRef = doc(db, "resumes", id);
+          const resumeSnap = await getDoc(resumeDocRef);
+
+          if (resumeSnap.exists()) {
+            const resumeData = resumeSnap.data();
+            const container = document.getElementById("public-view-container");
+
+            if (isEditable) {
+              document.title = `Editar Currículo - ${resumeData.name}`;
+              container.innerHTML = `<form id="public-edit-form"><h1 class="text-3xl font-bold text-slate-800 mb-2">Atualize seu Currículo</h1><p class="text-slate-600 mb-6">Mantenha suas informações sempre em dia.</p><div id="form-content-container"></div><div class="flex justify-end pt-6 mt-4 border-t"><button type="submit" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Salvar Alterações</button></div><p id="save-feedback" class="text-center mt-4 h-6"></p></form>`;
+              renderFormFields(
+                document.getElementById("form-content-container")
+              );
+              populateForm(resumeData);
+              document
+                .getElementById("public-edit-form")
+                .addEventListener("submit", async (e) => {
+                  e.preventDefault();
+                  const updatedData = getFormData();
+                  const feedback = document.getElementById("save-feedback");
+                  feedback.textContent = "Salvando...";
+                  try {
+                    await updateDoc(resumeDocRef, updatedData);
+                    feedback.textContent = "Dados atualizados com sucesso!";
+                    feedback.classList.add("text-green-500");
+                  } catch (error) {
+                    feedback.textContent = "Erro ao salvar.";
+                    feedback.classList.add("text-red-500");
+                  }
+                });
+            } else {
+              document.title = `Currículo de ${resumeData.name}`;
+              container.innerHTML = generatePdfHtml(resumeData);
+            }
+          } else {
+            document.getElementById("public-view-container").innerHTML =
+              '<p class="text-center text-red-500">Currículo não encontrado.</p>';
+          }
         } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
+          document.getElementById("public-view-container").innerHTML =
+            '<p class="text-center text-red-500">Erro ao carregar o currículo.</p>';
+        }
+      }
+
+      // --- Firestore & Data Handling ---
+      function fetchResumes() {
+        onSnapshot(collection(db, "resumes"), (snapshot) => {
+          allResumes = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          allResumes.sort((a, b) => a.name.localeCompare(b.name));
+          applyFilters();
+          loadingIndicator.classList.add("hidden");
+        });
+      }
+
+      // --- FILTERING LOGIC ---
+      function applyFilters() {
+        const textValue = filterText.value.toLowerCase().trim();
+        const cnhValue = filterCnh.value;
+        const pcdValue = filterPcd.value;
+
+        const filteredResumes = allResumes.filter((resume) => {
+          const textMatch =
+            !textValue ||
+            resume.name.toLowerCase().includes(textValue) ||
+            (resume.skills || []).some((skill) =>
+              (skill.name || skill).toLowerCase().includes(textValue)
+            );
+          const cnhMatch = cnhValue === "todos" || resume.cnh === cnhValue;
+          const pcdMatch = pcdValue === "todos" || resume.pcd === pcdValue;
+          return textMatch && cnhMatch && pcdMatch;
+        });
+        renderResumeCards(filteredResumes);
+      }
+      filterText.addEventListener("input", applyFilters);
+      filterCnh.addEventListener("change", applyFilters);
+      filterPcd.addEventListener("change", applyFilters);
+      clearFiltersBtn.addEventListener("click", () => {
+        filterForm.reset();
+        applyFilters();
+      });
+
+      // --- Rendering Logic for Main App ---
+      function renderResumeCards(resumesToRender) {
+        resumeList.innerHTML = "";
+        noResults.classList.toggle("hidden", resumesToRender.length > 0);
+        resumesToRender.forEach((resume) => {
+          const card = document.createElement("div");
+          card.className =
+            "bg-white rounded-xl shadow-lg p-5 flex flex-col justify-between transition-transform transform hover:scale-105";
+          const skillsHTML = (resume.skills || [])
+            .map(
+              (s) =>
+                `<span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 mb-2 px-2.5 py-0.5 rounded-full">${
+                  s.name || s
+                }</span>`
+            )
+            .join("");
+          card.innerHTML = `<div><h3 class="text-xl font-bold truncate">${
+            resume.name
+          }</h3><p class="text-sm text-slate-500 mb-4">${
+            resume["email-candidate"] || ""
+          }</p><div class="flex flex-wrap mb-4">${
+            skillsHTML ||
+            '<p class="text-sm text-slate-400">Sem habilidades.</p>'
+          }</div></div><div class="border-t pt-4 mt-auto flex justify-end space-x-2"><button data-id="${
+            resume.id
+          }" class="edit-btn text-slate-500 hover:text-blue-600" title="Editar"><i class="fas fa-edit"></i></button><button data-id="${
+            resume.id
+          }" class="share-btn text-slate-500 hover:text-green-600" title="Compartilhar"><i class="fas fa-share-alt"></i></button><button data-id="${
+            resume.id
+          }" class="pdf-btn text-slate-500 hover:text-red-600" title="Exportar PDF"><i class="fas fa-file-pdf"></i></button><button data-id="${
+            resume.id
+          }" class="delete-btn text-slate-500 hover:text-red-700" title="Deletar"><i class="fas fa-trash"></i></button></div>`;
+          resumeList.appendChild(card);
+        });
+      }
+
+      // --- Form Generation & Handling ---
+      function renderFormFields(container) {
+        container.innerHTML = `<div class="space-y-6"><fieldset class="border p-4 rounded-lg"><legend class="px-2 font-semibold">Dados Pessoais</legend><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2"><div class="lg:col-span-2"><label class="block text-sm">Nome Completo</label><input type="text" id="name" required class="mt-1 w-full rounded-md border-slate-300"></div><div><label class="block text-sm">Data de Nascimento</label><input type="date" id="birthDate" class="mt-1 w-full rounded-md border-slate-300"></div><div><label class="block text-sm">CPF</label><input type="text" id="cpf" class="mt-1 w-full rounded-md border-slate-300"></div><div><label class="block text-sm">Telefone</label><input type="tel" id="phone" required class="mt-1 w-full rounded-md border-slate-300"></div><div><label class="block text-sm">Email</label><input type="email" id="email-candidate" required class="mt-1 w-full rounded-md border-slate-300"></div><div class="lg:col-span-3"><label class="block text-sm">Endereço</label><input type="text" id="address" class="mt-1 w-full rounded-md border-slate-300"></div><div><label class="block text-sm">Gênero</label><select id="gender" class="mt-1 w-full rounded-md border-slate-300"><option>Não informar</option><option>Feminino</option><option>Masculino</option><option>Outro</option></select></div><div><label class="block text-sm">Estado Civil</label><select id="maritalStatus" class="mt-1 w-full rounded-md border-slate-300"><option>Não informar</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option></select></div><div><label class="block text-sm">Filhos?</label><select id="children" class="mt-1 w-full rounded-md border-slate-300"><option>Não</option><option>Sim</option></select></div><div><label class="block text-sm">CNH</label><select id="cnh" class="mt-1 w-full rounded-md border-slate-300"><option>Nenhuma</option><option>A</option><option>B</option><option>A+B</option><option>C</option><option>D</option><option>E</option></select></div><div><label class="block text-sm">PCD?</label><select id="pcd" class="mt-1 w-full rounded-md border-slate-300"><option>Não</option><option>Sim</option></select></div></div></fieldset><fieldset class="border p-4 rounded-lg"><legend class="px-2 font-semibold">Dados Profissionais</legend><div class="space-y-4 mt-2"><div><label class="block text-sm">Resumo</label><textarea id="summary" rows="3" class="mt-1 w-full rounded-md border-slate-300"></textarea></div><div class="relative skills-container"><label class="block text-sm font-medium mb-1">Habilidades</label><div id="selected-skills-pills" class="flex flex-wrap items-center p-2 border border-slate-300 rounded-md min-h-[42px]"><input type="text" id="skill-search-input" class="flex-grow outline-none bg-transparent" placeholder="Pesquise ou adicione..."></div><div id="skills-dropdown" class="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg hidden skills-dropdown"></div></div><div id="experience-section"><h3 class="font-semibold text-md">Experiência</h3><div id="experience-list"></div><button type="button" class="add-dynamic-btn" data-type="experience">+ Adicionar</button></div><div id="education-section"><h3 class="font-semibold text-md">Formação</h3><div id="education-list"></div><button type="button" class="add-dynamic-btn" data-type="education">+ Adicionar</button></div></div></fieldset></div>`;
+        container
+          .querySelectorAll(".add-dynamic-btn")
+          .forEach((btn) =>
+            btn.addEventListener("click", (e) =>
+              addDynamicEntry(e.target.dataset.type)
+            )
+          );
+        initSkillsComponent();
+      }
+
+      function getFormData() {
+        const data = {};
+        [
+          "name",
+          "birthDate",
+          "cpf",
+          "phone",
+          "email-candidate",
+          "address",
+          "gender",
+          "maritalStatus",
+          "children",
+          "cnh",
+          "pcd",
+          "summary",
+        ].forEach((key) => {
+          const el = document.getElementById(key);
+          if (el) data[key] = el.value;
+        });
+        data.skills = selectedSkills;
+        data.experience = getDynamicSectionData("experience");
+        data.education = getDynamicSectionData("education");
+        return data;
+      }
+
+      function initSkillsComponent() {
+        const container = document.querySelector(".skills-container");
+        const searchInput = document.getElementById("skill-search-input");
+        const dropdown = document.getElementById("skills-dropdown");
+        renderSelectedSkills();
+        renderSkillsDropdown();
+        searchInput.addEventListener("input", () =>
+          renderSkillsDropdown(searchInput.value)
+        );
+        searchInput.addEventListener("focus", () =>
+          dropdown.classList.remove("hidden")
+        );
+        document.addEventListener("click", (e) => {
+          if (!container.contains(e.target)) dropdown.classList.add("hidden");
+        });
+      }
+
+      function renderSelectedSkills() {
+        const pillsContainer = document.getElementById("selected-skills-pills");
+        const searchInput = document.getElementById("skill-search-input");
+        pillsContainer.innerHTML = "";
+        selectedSkills.forEach((skill) => {
+          const pill = document.createElement("div");
+          pill.className = "selected-skill";
+          pill.innerHTML = `<span>${skill.name}</span><span class="remove-skill-btn" data-id="${skill.id}">&times;</span>`;
+          pill
+            .querySelector(".remove-skill-btn")
+            .addEventListener("click", () => {
+              selectedSkills = selectedSkills.filter((s) => s.id !== skill.id);
+              renderSelectedSkills();
+              renderSkillsDropdown();
+            });
+          pillsContainer.appendChild(pill);
+        });
+        pillsContainer.appendChild(searchInput);
+        searchInput.focus();
+      }
+
+      function renderSkillsDropdown(searchTerm = "") {
+        const dropdown = document.getElementById("skills-dropdown");
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        const availableSkills = allSkills.filter(
+          (skill) =>
+            !selectedSkills.some((selected) => selected.id === skill.id) &&
+            skill.name.toLowerCase().includes(lowerSearchTerm)
+        );
+        dropdown.innerHTML = "";
+        if (availableSkills.length > 0)
+          availableSkills.forEach((skill) => {
+            const option = document.createElement("div");
+            option.className = "p-2 cursor-pointer hover:bg-slate-100";
+            option.textContent = skill.name;
+            option.addEventListener("click", () => selectSkill(skill));
+            dropdown.appendChild(option);
+          });
+        if (
+          searchTerm &&
+          !allSkills.some((s) => s.name.toLowerCase() === lowerSearchTerm)
+        ) {
+          const addOption = document.createElement("div");
+          addOption.className =
+            "p-2 cursor-pointer hover:bg-green-100 text-green-700";
+          addOption.innerHTML = `<i class="fas fa-plus mr-2"></i> Adicionar: <strong>${searchTerm}</strong>`;
+          addOption.addEventListener("click", () => createNewSkill(searchTerm));
+          dropdown.appendChild(addOption);
+        }
+      }
+
+      function selectSkill(skill) {
+        selectedSkills.push(skill);
+        document.getElementById("skill-search-input").value = "";
+        renderSelectedSkills();
+        renderSkillsDropdown();
+      }
+
+      async function createNewSkill(skillName) {
+        const formattedName = skillName.trim();
+        if (formattedName === "") return;
+        const existingSkill = allSkills.find(
+          (s) => s.name.toLowerCase() === formattedName.toLowerCase()
+        );
+        if (existingSkill) {
+          selectSkill(existingSkill);
+          return;
+        }
+        try {
+          const docRef = await addDoc(collection(db, "habilidades"), {
+            name: formattedName,
+          });
+          const newSkill = { id: docRef.id, name: formattedName };
+          allSkills.push(newSkill);
+          selectSkill(newSkill);
+        } catch (error) {
+          alert("Não foi possível adicionar a nova habilidade.");
+        }
+      }
+
+      function populateForm(data) {
+        [
+          "name",
+          "birthDate",
+          "cpf",
+          "phone",
+          "email-candidate",
+          "address",
+          "gender",
+          "maritalStatus",
+          "children",
+          "cnh",
+          "pcd",
+          "summary",
+        ].forEach((key) => {
+          const el = document.getElementById(key);
+          if (el) el.value = data[key] || "";
+        });
+        selectedSkills = data.skills || [];
+        initSkillsComponent();
+        document.getElementById("experience-list").innerHTML = "";
+        document.getElementById("education-list").innerHTML = "";
+        (data.experience || []).forEach((item) =>
+          addDynamicEntry("experience", item)
+        );
+        (data.education || []).forEach((item) =>
+          addDynamicEntry("education", item)
+        );
+      }
+
+      async function openEditModal(id) {
+        const resumeDoc = doc(db, "resumes", id);
+        const resumeSnap = await getDoc(resumeDoc);
+        if (resumeSnap.exists()) {
+          modalTitle.textContent = "Editar Currículo";
+          renderFormFields(formContainer);
+          populateForm(resumeSnap.data());
+          document.getElementById("resume-id").value = id;
+          resumeModal.classList.remove("hidden");
+        }
+      }
+
+      addResumeButton.addEventListener("click", () => {
+        modalTitle.textContent = "Adicionar Novo Currículo";
+        renderFormFields(formContainer);
+        resumeForm.reset();
+        selectedSkills = [];
+        initSkillsComponent();
+        document.getElementById("resume-id").value = "";
+        resumeModal.classList.remove("hidden");
+      });
+
+      function generatePdfHtml(r) {
+        const skillsHtml =
+          r.skills
+            ?.map(
+              (s) =>
+                `<span style="background-color: #e0f2fe; color: #0c4a6e; padding: 4px 8px; border-radius: 9999px; font-size: 12px; margin-right: 5px; margin-bottom: 5px; display: inline-block;">${
+                  s.name || s
+                }</span>`
+            )
+            .join("") || "";
+        const expHtml =
+          r.experience
+            ?.map(
+              (e) =>
+                `<div style="margin-bottom: 15px;"><h4 style="font-size: 16px; font-weight: bold; color: #333;">${e.position}</h4><p style="font-size: 14px; color: #555; margin: 0;">${e.company} | ${e.period}</p><p style="font-size: 14px; color: #666; margin-top: 5px;">${e.description}</p></div>`
+            )
+            .join("") || "";
+        const eduHtml =
+          r.education
+            ?.map(
+              (e) =>
+                `<div style="margin-bottom: 10px;"><h4 style="font-size: 16px; font-weight: bold; color: #333;">${e.course}</h4><p style="font-size: 14px; color: #555; margin: 0;">${e.institution} | ${e.period}</p></div>`
+            )
+            .join("") || "";
+        return `<div style="font-family: 'Inter', sans-serif; padding: 40px; color: #111; width: 794px;"><div style="text-align: center; border-bottom: 2px solid #ddd; padding-bottom: 20px; margin-bottom: 20px;"><h1 style="font-size: 32px; font-weight: bold; margin: 0;">${
+          r.name
+        }</h1><p style="font-size: 14px; color: #555; margin-top: 5px;">${
+          r["email-candidate"] || ""
+        } &bull; ${
+          r.phone || ""
+        }</p></div><div><h2 style="font-size: 18px; font-weight: bold; color: #0284c7; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px;">RESUMO PROFISSIONAL</h2><p style="font-size: 14px; line-height: 1.6;">${
+          r.summary || ""
+        }</p></div><div style="margin-top: 25px;"><h2 style="font-size: 18px; font-weight: bold; color: #0284c7; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 15px;">EXPERIÊNCIA</h2>${expHtml}</div><div style="margin-top: 25px;"><h2 style="font-size: 18px; font-weight: bold; color: #0284c7; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 15px;">FORMAÇÃO</h2>${eduHtml}</div><div style="margin-top: 25px;"><h2 style="font-size: 18px; font-weight: bold; color: #0284c7; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 15px;">HABILIDADES</h2><div style="display: flex; flex-wrap: wrap;">${skillsHtml}</div></div></div>`;
+      }
+
+      function addDynamicEntry(type, data = {}) {
+        const list = document.getElementById(`${type}-list`);
+        const entryDiv = document.createElement("div");
+        entryDiv.className =
+          "p-3 mt-2 border rounded-md relative grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-50";
+        const fields =
+          type === "experience"
+            ? {
+                position: "Cargo",
+                company: "Empresa",
+                period: "Período",
+                description: "Descrição",
+              }
+            : {
+                course: "Curso/Formação",
+                institution: "Instituição",
+                period: "Período",
+              };
+        let html = Object.keys(fields)
+          .map(
+            (key) =>
+              `<div class="${
+                key === "description" ? "md:col-span-2" : ""
+              }"><label class="block text-xs">${fields[key]}</label>${
+                key === "description"
+                  ? `<textarea data-key="${key}" rows="2" class="mt-1 w-full rounded-md border-slate-300 text-sm">${
+                      data[key] || ""
+                    }</textarea>`
+                  : `<input type="text" data-key="${key}" value="${
+                      data[key] || ""
+                    }" class="mt-1 w-full rounded-md border-slate-300 text-sm">`
+              }</div>`
+          )
+          .join("");
+        entryDiv.innerHTML =
+          html +
+          `<button type="button" class="remove-btn absolute top-2 right-2 hover:text-red-700 text-red-500"><i class="fas fa-times"></i></button>`;
+        entryDiv.querySelector(".remove-btn").onclick = () => entryDiv.remove();
+        list.appendChild(entryDiv);
+      }
+      function getDynamicSectionData(type) {
+        return Array.from(document.getElementById(`${type}-list`).children).map(
+          (node) => {
+            const entry = {};
+            node
+              .querySelectorAll("input, textarea")
+              .forEach((input) => (entry[input.dataset.key] = input.value));
+            return entry;
+          }
+        );
+      }
+      function openShareModal(id) {
+        const baseUrl = `${window.location.origin}${window.location.pathname}`;
+        shareLinkCompanyInput.value = `${baseUrl}?view=${id}`;
+        shareLinkCandidateInput.value = `${baseUrl}?edit=${id}`;
+        copyFeedback.textContent = "";
+        shareModal.classList.remove("hidden");
+      }
+      closeShareModal.addEventListener("click", () =>
+        shareModal.classList.add("hidden")
+      );
+      document.querySelectorAll(".copy-link-button").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const input = document.getElementById(e.target.dataset.target);
+          input.select();
+          document.execCommand("copy");
+          copyFeedback.textContent = "Link copiado!";
+          setTimeout(() => {
+            copyFeedback.textContent = "";
+          }, 2000);
+        });
+      });
+      async function exportPdfById(id) {
+        const resume = allResumes.find((r) => r.id === id);
+        if (!resume) {
+          alert("Currículo não encontrado.");
+          return;
+        }
+        alert("Gerando PDF...");
+        const previewContainer = document.getElementById(
+          "pdf-preview-container"
+        );
+        previewContainer.innerHTML = generatePdfHtml(resume);
+        try {
+          const canvas = await html2canvas(previewContainer, {
+            scale: 2,
+            useCORS: true,
+          });
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+          const ratio = canvas.height / canvas.width;
+          const imgWidth = pageWidth;
+          const imgHeight = imgWidth * ratio;
+          let heightLeft = imgHeight;
+          let position = 0;
+          pdf.addImage(
+            canvas.toDataURL("image/png"),
+            "PNG",
+            0,
+            position,
+            imgWidth,
+            imgHeight
+          );
+          heightLeft -= pageHeight;
+          while (heightLeft > 0) {
+            position = -heightLeft;
+            pdf.addPage();
+            pdf.addImage(
+              canvas.toDataURL("image/png"),
+              "PNG",
+              0,
+              position,
+              imgWidth,
+              imgHeight
+            );
+            heightLeft -= pageHeight;
+          }
+          const pdfBlob = pdf.output("blob");
+          const url = URL.createObjectURL(pdfBlob);
+          window.open(url, "_blank");
+        } catch (error) {
+          console.error("Erro ao gerar PDF:", error);
+          alert("Não foi possível gerar o PDF.");
+        } finally {
+          previewContainer.innerHTML = "";
+        }
+      }
+      cancelButton.addEventListener("click", () =>
+        resumeModal.classList.add("hidden")
+      );
+      resumeForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("resume-id").value;
+        const resumeData = getFormData();
+        try {
+          if (id) {
+            await updateDoc(doc(db, "resumes", id), resumeData);
+          } else {
+            await addDoc(collection(db, "resumes"), {
+              ...resumeData,
+              createdAt: serverTimestamp(),
+            });
+          }
+          resumeModal.classList.add("hidden");
+        } catch (error) {
+          console.error("Error saving resume: ", error);
+          alert("Ocorreu um erro ao salvar o currículo.");
         }
       });
+      resumeList.addEventListener("click", async (e) => {
+        const button = e.target.closest("button");
+        if (!button) return;
+        const id = button.dataset.id;
+        if (button.classList.contains("edit-btn")) {
+          openEditModal(id);
+        } else if (button.classList.contains("delete-btn")) {
+          showConfirm("Deletar Currículo", "Tem certeza?", async () => {
+            await deleteDoc(doc(db, "resumes", id));
+          });
+        } else if (button.classList.contains("share-btn")) {
+          openShareModal(id);
+        } else if (button.classList.contains("pdf-btn")) {
+          exportPdfById(id);
+        }
+      });
+
+      startApp();
     </script>
   </body>
 </html>
